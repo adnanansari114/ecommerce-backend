@@ -14,8 +14,8 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
-// const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
-// app.use('/api/staticpage', staticPageRoutes); // This is correct
+const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
+app.use('/api/staticpage', staticPageRoutes); // This is correct
 
 
 app.use('/api/auth', require('./routes/auth')); 

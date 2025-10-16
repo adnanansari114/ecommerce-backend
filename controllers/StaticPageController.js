@@ -1,6 +1,6 @@
 const StaticPage = require('../models/StaticPage');
 
-// Get page by slug (public)
+// Get page by slug (public) 
 exports.getPage = async (req, res) => {
   try {
     const page = await StaticPage.findOne({ slug: req.params.slug });
