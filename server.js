@@ -14,8 +14,8 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
-const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
-app.use('/api/staticpage', staticPageRoutes); // This is correct
+// const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
+// app.use('/api/staticpage', staticPageRoutes); // This is correct
 
 
 app.use('/api/auth', require('./routes/auth')); 
@@ -24,7 +24,7 @@ app.use('/api/cart', require('./routes/cart'));
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/orders', require('./routes/order'));
 app.use('/api/dashboard', require('./routes/dashboard'));
-app.use('/api/pages', require('./routes/staticpage')); 
+// app.use('/api/pages', require('./routes/staticpage')); 
 app.get('/', (req, res) => res.send('API is running...'));
 
 connectDB()
