@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db'); 
-// const passport = require('passport');
+const passport = require('passport');
 
 const app = express();
 
@@ -18,8 +18,8 @@ app.use('/uploads', express.static('uploads'));
 // const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
 // app.use('/api/staticpage', staticPageRoutes); // This is correct
 
-// app.use(passport.initialize());
-// require('./config/passport')(passport);
+app.use(passport.initialize());
+require('./config/passport')(passport);
 
 app.use('/api/auth', require('./routes/auth')); 
 app.use('/api/product', require('./routes/product'));

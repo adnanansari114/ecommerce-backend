@@ -38,25 +38,25 @@ router.post('/verify-otp', verifyOTP);
 router.post('/profile/photo', authUser, upload.single('profilePhoto'), uploadProfilePhoto);
 
 
-// router.get('/google',
-//   (req, res, next) => {
-//     next();
-//   },
-//   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
-// );
-// // Callback route
-// router.get('/google/callback',
-//   passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/auth/fail` }),
-//   (req, res) => {
-//     const jwt = require('jsonwebtoken');
-//     const user = req.user;
-//     const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
+router.get('/google',
+  (req, res, next) => {
+    next();
+  },
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+);
+// Callback route
+router.get('/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/auth/fail` }),
+  (req, res) => {
+    const jwt = require('jsonwebtoken');
+    const user = req.user;
+    const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-//     const redirectUrl = `${process.env.CLIENT_URL}/auth/success#token=${token}`;
-//     res.redirect(redirectUrl);
-//   }
-// );
+    const redirectUrl = `${process.env.CLIENT_URL}/auth/success#token=${token}`;
+    res.redirect(redirectUrl);
+  }
+);
 
-// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
 module.exports = router;

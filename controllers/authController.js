@@ -63,6 +63,25 @@ exports.verifyOTP = async (req, res) => {
 };
 
 
+exports.login = async (req, res) => {
+  try {
+    const { usernameOrEmail, password } = req.body;
+    const user = await User.findOne({
+      $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }]
+    });
+    if (!user) return res.status(400).json({ msg: 'Invalid credentials' });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(400).json({ msg: 'Invalid credentials' });
+
+    const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { name: user.name, username: user.username, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
+
+
 // Admin Login (only one admin, no register)
 exports.adminLogin = async (req, res) => {
   try {
