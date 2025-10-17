@@ -6,6 +6,7 @@ const { adminMiddleware } = require('../middleware/adminMiddleware');
 const multer = require('multer');
 const path = require('path');
 const passport = require('passport');
+const jwt = require('jsonwebtoken');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -56,6 +57,6 @@ router.get('/google/callback',
   }
 );
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
 module.exports = router;
