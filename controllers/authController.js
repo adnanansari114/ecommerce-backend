@@ -2,13 +2,16 @@ const User = require('../models/User');
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const OTP = require('../models/OTP');
+const sendEmail = require('../utils/sendEmail');
+const otpGenerator = require('otp-generator');
 
-// User Registration
 exports.register = async (req, res) => {
   try {
     const { name, username, email, phone, password, confirmPassword, agreed } = req.body;
-     if (!name || !username || !email || !password || !confirmPassword || !agreed)
-       return res.status(400).json({ msg: 'All fields are required and privacy must be agreed.' });
+
+    if (!name || !username || !email || !password || !confirmPassword || !agreed)
+      return res.status(400).json({ msg: 'All fields are required and privacy must be agreed.' });
 
     if (password !== confirmPassword)
       return res.status(400).json({ msg: 'Passwords do not match.' });
@@ -17,32 +20,48 @@ exports.register = async (req, res) => {
     if (userExists)
       return res.status(400).json({ msg: 'Username or Email already exists.' });
 
-    const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, username, email, phone, password: hash, agreed });
-    res.status(201).json({ msg: 'User registered', user: { name: user.name, username: user.username, email: user.email } });
+    // Generate OTP
+    const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+    await OTP.create({ email, otp });
+
+    // Send OTP via Brevo
+    const html = `
+      <h2>Welcome to Trendora, ${name}!</h2>
+      <p>Your OTP for registration is: <strong>${otp}</strong></p>
+      <p>This OTP will expire in 5 minutes.</p>
+    `;
+    await sendEmail(email, "Trendora Registration OTP", html);
+
+    res.status(200).json({ msg: "OTP sent successfully to your email." });
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
 
-// User Login
-exports.login = async (req, res) => {
+
+// STEP 2: Verify OTP and complete registration
+exports.verifyOTP = async (req, res) => {
   try {
-    const { usernameOrEmail, password } = req.body;
-    const user = await User.findOne({
-      $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }]
-    });
-    if (!user) return res.status(400).json({ msg: 'Invalid credentials' });
+    const { name, username, email, phone, password, agreed, otp } = req.body;
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ msg: 'Invalid credentials' });
+    const validOTP = await OTP.findOne({ email, otp });
+    if (!validOTP) return res.status(400).json({ msg: 'Invalid or expired OTP' });
 
-    const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { name: user.name, username: user.username, email: user.email } });
+    // Hash password
+    const hash = await bcrypt.hash(password, 10);
+
+    // Save user
+    const user = await User.create({ name, username, email, phone, password: hash, agreed });
+
+    // Remove OTP from DB
+    await OTP.deleteOne({ _id: validOTP._id });
+
+    res.status(201).json({ msg: 'Registration successful', user: { name: user.name, email: user.email } });
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
+
 
 // Admin Login (only one admin, no register)
 exports.adminLogin = async (req, res) => {
