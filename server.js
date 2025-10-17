@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db'); 
-const passport = require('passport');
+// const passport = require('passport');
 
 const app = express();
 
-// const allowedOrigins = process.env.CLIENT_URL || 'https://ecommerce-frontend-bttv.onrender.com';
+const allowedOrigins = process.env.CLIENT_URL || 'https://ecommerce-frontend-bttv.onrender.com';
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
