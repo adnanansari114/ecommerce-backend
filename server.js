@@ -6,7 +6,7 @@ const passport = require('passport');
 
 const app = express();
 
-const allowedOrigins = process.env.CLIENT_URL || 'https://ecommerce-frontend-bttv.onrender.com';
+// const allowedOrigins = process.env.CLIENT_URL || 'https://ecommerce-frontend-bttv.onrender.com';
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
@@ -18,8 +18,8 @@ app.use('/uploads', express.static('uploads'));
 // const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
 // app.use('/api/staticpage', staticPageRoutes); // This is correct
 
-app.use(passport.initialize());
-require('./config/passport')(passport);
+// app.use(passport.initialize());
+// require('./config/passport')(passport);
 
 app.use('/api/auth', require('./routes/auth')); 
 app.use('/api/product', require('./routes/product'));
