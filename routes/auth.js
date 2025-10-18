@@ -38,15 +38,17 @@ router.post('/verify-otp', verifyOTP);
 router.post('/profile/photo', authUser, upload.single('profilePhoto'), uploadProfilePhoto);
 
 
+
 router.get('/google',
   (req, res, next) => {
     next();
   },
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
+
 // Callback route
 router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/auth/fail` }),
   (req, res) => {
     const jwt = require('jsonwebtoken');
     const user = req.user;
@@ -57,6 +59,6 @@ router.get('/google/callback',
   }
 );
 
-// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
 module.exports = router;
