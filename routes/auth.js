@@ -57,6 +57,6 @@ router.get('/google/callback',
   }
 );
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
 module.exports = router;
