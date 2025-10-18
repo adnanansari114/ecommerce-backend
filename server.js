@@ -9,7 +9,8 @@ const app = express();
 const allowedOrigins = process.env.CLIENT_URL || 'https://ecommerce-frontend-bttv.onrender.com';
 app.use(cors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
 
 app.use(express.json());

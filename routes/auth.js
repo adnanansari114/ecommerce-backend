@@ -46,7 +46,7 @@ router.get('/google',
 );
 // Callback route
 router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/auth/fail` }),
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login` }),
   (req, res) => {
     const jwt = require('jsonwebtoken');
     const user = req.user;
