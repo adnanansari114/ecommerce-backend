@@ -54,8 +54,10 @@ router.get('/google/callback',
     const user = req.user;
     const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-    const redirectUrl = `${process.env.CLIENT_URL}/auth/success#token=${token}`;
-    res.redirect(redirectUrl);
+    res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token}`);
+
+    // const redirectUrl = `${process.env.CLIENT_URL}/auth/success#token=${token}`;
+    // res.redirect(redirectUrl);
   }
 );
 
