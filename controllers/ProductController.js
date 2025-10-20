@@ -1,10 +1,41 @@
 const Product = require('../models/Product');
+const Category = require("../models/Category");
 
 // Get all products
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const { category, minPrice, maxPrice, color, minRating, search } = req.query;
+    const filter = {};
+
+    if (category) filter.category = category;
+    if (color) filter.colorOptions = color; // Matches if color in array
+    if (minRating) filter.rating = { $gte: Number(minRating) };
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const products = await Product.find(filter).sort({ createdAt: -1 });
     res.json(products);
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
+
+// Get unique colors (new)
+exports.getUniqueColors = async (req, res) => {
+  try {
+    const colors = await Product.distinct('colorOptions');
+    res.json([...new Set(colors)]); // Dedupe if needed
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
@@ -60,3 +91,5 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
+
+

@@ -14,7 +14,8 @@ const productSchema = new mongoose.Schema({
   reviews: Number,
   stock: Number,
   sku: String,
-  category: String,
+  category: { type: String, required: true },
+  subcategory: { type: String },
   featured: Boolean,
   createdAt: { type: Date, default: Date.now }
 });

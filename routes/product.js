@@ -8,7 +8,8 @@ const {
   getProduct,
   addProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getUniqueColors
 } = require('../controllers/ProductController');
 
 // Multer setup for multiple images
@@ -24,6 +25,7 @@ const upload = multer({ storage });
 
 // Public routes
 router.get('/', getProducts); // /api/product/
+router.get('/colors', getUniqueColors);
 router.get('/:id', getProduct); // /api/product/:id
 router.post('/', adminMiddleware, upload.array('images', 5), addProduct); // /api/product/
 router.put('/:id', adminMiddleware, upload.array('images', 5), updateProduct); // /api/product/:id

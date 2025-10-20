@@ -29,6 +29,7 @@ app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/orders', require('./routes/order'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/contact', require('./routes/contactMessage'));
+app.use('/api/category', require('./routes/categoryRoute'));
 // app.use('/api/pages', require('./routes/staticpage')); 
 app.get('/', (req, res) => res.send('API is running...'));
 
