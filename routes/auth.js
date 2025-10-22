@@ -1,6 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { register,verifyOTP ,login, adminLogin, getProfile, updateProfile, uploadProfilePhoto } = require('../controllers/authController');
+const { register, 
+        verifyOTP, 
+        login, 
+        adminLogin, 
+        getProfile, 
+        updateProfile, 
+        uploadProfilePhoto,
+        changePassword, 
+        forgotPassword,
+        resetPassword  
+      } = require('../controllers/authController');
 const { authUser } = require('../middleware/authMiddleware');
 const { adminMiddleware } = require('../middleware/adminMiddleware');
 const multer = require('multer');
@@ -61,6 +71,11 @@ router.get('/google/callback',
   }
 );
 
-// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+// Change Password (requires auth)
+router.put('/change-password', authUser, changePassword);
+
+// Forgot Password
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

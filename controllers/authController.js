@@ -147,3 +147,122 @@ exports.uploadProfilePhoto = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
+
+
+// CHANGE PASSWORD - User must be logged in
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ msg: 'All fields are required' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ msg: 'New passwords do not match' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ msg: 'New password must be at least 6 characters' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Old password is incorrect' });
+    }
+
+    // Hash new password
+    const newHash = await bcrypt.hash(newPassword, 10);
+    
+    // Update password
+    user.password = newHash;
+    await user.save();
+
+    res.json({ msg: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
+
+// FORGET PASSWORD - STEP 1: Send OTP to email
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ msg: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: 'Email not found' });
+    }
+
+    // Generate OTP
+    const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+    await OTP.create({ email, otp });
+
+    // Send OTP via Brevo
+    const html = `
+      <h2>Trendora Password Reset</h2>
+      <p>Hi ${user.name},</p>
+      <p>Your OTP for password reset is: <strong>${otp}</strong></p>
+      <p>This OTP will expire in 5 minutes.</p>
+      <p>If you didn't request this, please ignore this email.</p>
+    `;
+    
+    await sendEmail(email, "Trendora Password Reset OTP", html);
+
+    res.status(200).json({ msg: "OTP sent successfully to your email" });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
+
+// FORGET PASSWORD - STEP 2: Verify OTP and reset password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword, confirmPassword } = req.body;
+
+    if (!email || !otp || !newPassword || !confirmPassword) {
+      return res.status(400).json({ msg: 'All fields are required' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ msg: 'Passwords do not match' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ msg: 'Password must be at least 6 characters' });
+    }
+
+    // Verify OTP
+    const validOTP = await OTP.findOne({ email, otp });
+    if (!validOTP) {
+      return res.status(400).json({ msg: 'Invalid or expired OTP' });
+    }
+
+    // Find user and update password
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: 'User not found' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    user.password = newHash;
+    await user.save();
+
+    // Delete OTP
+    await OTP.deleteOne({ _id: validOTP._id });
+
+    res.json({ msg: 'Password reset successful' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
