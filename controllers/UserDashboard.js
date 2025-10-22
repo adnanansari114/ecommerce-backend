@@ -15,7 +15,7 @@ exports.getUserDashboard = async (req, res) => {
       orders,
       wishlist: wishlist ? wishlist.items.length : 0,
       cart: cart ? cart.items.length : 0,
-      addresses: user && user.address ? 1 : 0 // or count addresses if array
+      addresses: user && user.address ? 1 : 0 
     });
   } catch (err) {
     res.status(500).json({ msg: "Server error", error: err.message });

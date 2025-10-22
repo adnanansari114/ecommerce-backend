@@ -11,12 +11,11 @@ const {
   updateOrderStatus
 } = require('../controllers/OrderController');
 
-// User routes
 router.post('/', authUser, placeOrder);
 router.get('/', authUser, getUserOrders);
 router.get('/:id', authUser, getOrderDetail);
 router.get('/track/:id', authUser, trackOrder);
-// Admin routes
 router.get('/admin/all', adminMiddleware, getAllOrders);
 router.put('/admin/:id', adminMiddleware, updateOrderStatus);
+
 module.exports = router;

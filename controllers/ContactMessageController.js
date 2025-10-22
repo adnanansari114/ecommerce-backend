@@ -1,6 +1,5 @@
 const ContactMessage = require('../models/ContactMessage');
 
-// ✅ User side: send contact message
 exports.sendMessage = async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -14,7 +13,6 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-// ✅ Admin side: get all messages
 exports.getMessages = async (req, res) => {
   try {
     const messages = await ContactMessage.find().sort({ createdAt: -1 });

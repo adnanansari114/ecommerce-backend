@@ -16,9 +16,6 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
-// const staticPageRoutes = require('./routes/staticpage'); // OK if staticpage.js exports a router
-// app.use('/api/staticpage', staticPageRoutes); // This is correct
-
 app.use(passport.initialize());
 require('./config/passport')(passport);
 
@@ -30,7 +27,6 @@ app.use('/api/orders', require('./routes/order'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/contact', require('./routes/contactMessage'));
 app.use('/api/category', require('./routes/categoryRoute'));
-// app.use('/api/pages', require('./routes/staticpage')); 
 app.get('/', (req, res) => res.send('API is running...'));
 
 connectDB()

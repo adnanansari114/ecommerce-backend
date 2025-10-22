@@ -13,5 +13,4 @@ router.post('/', authUser, addToCart);
 router.delete('/:itemId', authUser, removeFromCart);
 router.delete('/', authUser, clearCart);
 
-
 module.exports = router;

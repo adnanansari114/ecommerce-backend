@@ -31,17 +31,15 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// Get unique colors (new)
 exports.getUniqueColors = async (req, res) => {
   try {
     const colors = await Product.distinct('colorOptions');
-    res.json([...new Set(colors)]); // Dedupe if needed
+    res.json([...new Set(colors)]); 
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
 
-// Get single product
 exports.getProduct = async (req, res) => {
   try { 
     const product = await Product.findById(req.params.id);
@@ -52,7 +50,6 @@ exports.getProduct = async (req, res) => {
   }
 };
 
-// Add product (admin only)
 exports.addProduct = async (req, res) => {
   try {
     const product = new Product(req.body);
@@ -66,7 +63,6 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-// Update product (admin only)
 exports.updateProduct = async (req, res) => {
   try {
     const update = req.body;
@@ -81,7 +77,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// Delete product (admin only)
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);

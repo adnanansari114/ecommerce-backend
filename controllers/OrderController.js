@@ -2,14 +2,12 @@ const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 
-// Place order from cart
 exports.placeOrder = async (req, res) => {
   try {
     const { shippingAddress, phone, paymentMethod, notes } = req.body;
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
     if (!cart || cart.items.length === 0) return res.status(400).json({ msg: "Cart is empty" });
 
-    // Calculate totals
     let subtotal = 0;
     const items = cart.items.map(i => {
       subtotal += i.product.price * i.qty;
@@ -42,9 +40,6 @@ exports.placeOrder = async (req, res) => {
       notes
     });
 
-    // Optionally, reduce product stock here
-
-    // Clear cart
     cart.items = [];
     await cart.save();
 
@@ -54,35 +49,28 @@ exports.placeOrder = async (req, res) => {
   }
 };
 
-// Get all orders for user
 exports.getUserOrders = async (req, res) => {
   const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
   res.json(orders);
 };
 
-// Get order detail
 exports.getOrderDetail = async (req, res) => {
   const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
   if (!order) return res.status(404).json({ msg: "Order not found" });
   res.json(order);
 };
 
-// Track order (status history)
 exports.trackOrder = async (req, res) => {
   const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
   if (!order) return res.status(404).json({ msg: "Order not found" });
   res.json({ status: order.status, history: order.statusHistory });
 };
 
-// ========== ADMIN ==========
-
-// Get all orders (admin)
 exports.getAllOrders = async (req, res) => {
   const orders = await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
   res.json(orders);
 };
 
-// Update order status (admin)
 exports.updateOrderStatus = async (req, res) => {
   const { status, tracking } = req.body;
   const order = await Order.findById(req.params.id);

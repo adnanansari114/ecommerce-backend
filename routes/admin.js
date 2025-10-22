@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { adminMiddleware } = require('../middleware/adminMiddleware');
-const upload = require('../utils/upload'); // adjust if you have a custom upload util
+const upload = require('../utils/upload');
 const { addProduct, editProduct, deleteProduct, uploadProductImage } = require('../controllers/AdminController');
 
-// Protect all admin routes
 router.post('/products', adminMiddleware, addProduct);
 router.put('/products/:id', adminMiddleware, editProduct);
 router.delete('/products/:id', adminMiddleware, deleteProduct);

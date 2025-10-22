@@ -20,40 +20,29 @@ exports.register = async (req, res) => {
     if (userExists)
       return res.status(400).json({ msg: 'Username or Email already exists.' });
 
-    // Generate OTP
     const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
     await OTP.create({ email, otp });
 
-    // Send OTP via Brevo
     const html = `
       <h2>Welcome to Trendora, ${name}!</h2>
       <p>Your OTP for registration is: <strong>${otp}</strong></p>
       <p>This OTP will expire in 5 minutes.</p>
     `;
     await sendEmail(email, "Trendora Registration OTP", html);
-
     res.status(200).json({ msg: "OTP sent successfully to your email." });
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
 
-
-// STEP 2: Verify OTP and complete registration
 exports.verifyOTP = async (req, res) => {
   try {
     const { name, username, email, phone, password, agreed, otp } = req.body;
 
     const validOTP = await OTP.findOne({ email, otp });
     if (!validOTP) return res.status(400).json({ msg: 'Invalid or expired OTP' });
-
-    // Hash password
     const hash = await bcrypt.hash(password, 10);
-
-    // Save user
     const user = await User.create({ name, username, email, phone, password: hash, agreed });
-
-    // Remove OTP from DB
     await OTP.deleteOne({ _id: validOTP._id });
 
     res.status(201).json({ msg: 'Registration successful', user: { name: user.name, email: user.email } });
@@ -82,7 +71,6 @@ exports.login = async (req, res) => {
 };
 
 
-// Admin Login (only one admin, no register)
 exports.adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -109,8 +97,6 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// Update profile (except password)
-// Update profile (except password)
 exports.updateProfile = async (req, res) => {
   try {
     const update = {};
@@ -130,11 +116,9 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// Upload/change profile photo
 exports.uploadProfilePhoto = async (req, res) => {
   try { 
     if (!req.file) return res.status(400).json({ msg: "No file uploaded" });
-    // For production, use: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
     const photoPath = `/uploads/${req.file.filename}`;
     const user = await User.findByIdAndUpdate(
       req.user.id,
@@ -149,7 +133,6 @@ exports.uploadProfilePhoto = async (req, res) => {
 };
 
 
-// CHANGE PASSWORD - User must be logged in
 exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -171,16 +154,13 @@ exports.changePassword = async (req, res) => {
       return res.status(404).json({ msg: 'User not found' });
     }
 
-    // Check old password
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Old password is incorrect' });
     }
 
-    // Hash new password
     const newHash = await bcrypt.hash(newPassword, 10);
     
-    // Update password
     user.password = newHash;
     await user.save();
 
@@ -190,7 +170,6 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-// FORGET PASSWORD - STEP 1: Send OTP to email
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -204,11 +183,9 @@ exports.forgotPassword = async (req, res) => {
       return res.status(400).json({ msg: 'Email not found' });
     }
 
-    // Generate OTP
     const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
     await OTP.create({ email, otp });
 
-    // Send OTP via Brevo
     const html = `
       <h2>Trendora Password Reset</h2>
       <p>Hi ${user.name},</p>
@@ -225,7 +202,6 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// FORGET PASSWORD - STEP 2: Verify OTP and reset password
 exports.resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword, confirmPassword } = req.body;
@@ -242,13 +218,11 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ msg: 'Password must be at least 6 characters' });
     }
 
-    // Verify OTP
     const validOTP = await OTP.findOne({ email, otp });
     if (!validOTP) {
       return res.status(400).json({ msg: 'Invalid or expired OTP' });
     }
 
-    // Find user and update password
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ msg: 'User not found' });
@@ -258,7 +232,6 @@ exports.resetPassword = async (req, res) => {
     user.password = newHash;
     await user.save();
 
-    // Delete OTP
     await OTP.deleteOne({ _id: validOTP._id });
 
     res.json({ msg: 'Password reset successful' });

@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     country: String,
   },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },
-  profilePhoto: { type: String }, // store file path or URL
+  profilePhoto: { type: String }, 
   createdAt: { type: Date, default: Date.now }
 });
 

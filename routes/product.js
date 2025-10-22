@@ -12,7 +12,6 @@ const {
   getUniqueColors
 } = require('../controllers/ProductController');
 
-// Multer setup for multiple images
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -23,12 +22,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage }); 
 
-// Public routes
-router.get('/', getProducts); // /api/product/
+router.get('/', getProducts);
 router.get('/colors', getUniqueColors);
-router.get('/:id', getProduct); // /api/product/:id
-router.post('/', adminMiddleware, upload.array('images', 5), addProduct); // /api/product/
-router.put('/:id', adminMiddleware, upload.array('images', 5), updateProduct); // /api/product/:id
-router.delete('/:id', adminMiddleware, deleteProduct); // /api/product/:id
+router.get('/:id', getProduct); 
+router.post('/', adminMiddleware, upload.array('images', 5), addProduct);
+router.put('/:id', adminMiddleware, upload.array('images', 5), updateProduct);
+router.delete('/:id', adminMiddleware, deleteProduct); 
 
 module.exports = router;

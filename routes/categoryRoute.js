@@ -7,8 +7,6 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../controllers/CategoryController");
-
-// Routes
 router.get("/", getCategories);
 router.post("/", adminMiddleware, addCategory);
 router.put("/:id", adminMiddleware, updateCategory);
